@@ -1,4 +1,5 @@
 
+
 def main():
     gems = []
     next_idx = 0
@@ -6,6 +7,7 @@ def main():
 
     for _ in range(n_cmds):
         cmds = list(map(int, input().split()))
+        # print(cmds)
         cmd, args = cmds[0], cmds[1:]
 
         if cmd == 1:
@@ -18,16 +20,17 @@ def main():
         elif cmd == 2:
             w, v = args
             for i in range(len(gems)):
-                if gems[i][1] < w or gems[i][1] == w and gems[i][2] < v:
-                    gems.insert(i, (idx, w, v))
+                if w > gems[i][1]:
+                    gems.insert(i, (next_idx, w, v))
                     break
             else:
-                gems.append((idx, w, v))
+                gems.append((next_idx, w, v))
+            next_idx += 1
         
         elif cmd == 3:
             target = args[0] - 1
             for idx, (i, w, v) in enumerate(gems):
-                if idx == target:
+                if i == target:
                     print(v)
                     del gems[idx]
                     break
@@ -36,23 +39,31 @@ def main():
         
         elif cmd == 4:
             #  0-1 knapsack
-            pass
+            max_w = args[0]
+            dp = [[0] * (max_w+1) for _ in range(len(gems)+1)]
+            for i, (idx, w, v) in enumerate(gems, start=1):
+                for new_w in range(max_w-w+1):
+                    dp[i][new_w] = max(dp[i-1][new_w], dp[i-1][new_w+w] + v)
+            print(max(dp[-1]))
 
         elif cmd == 5:
             #  2-pointer
+
             d = args[0]
-            if len(gems) == 0:
+            if len(gems) <= 1:
                 print(0)
                 continue
             front, back = 0, 1
             cnt = 0
-            while front < back < len(gems):
+            while back < len(gems):
                 if gems[front][1] - gems[back][1] <= d:
-                    cnt += 1
                     back += 1
                 else:
+                    cnt += (back-front-1)
                     front += 1
-            cnt += (back-front-1)
+            while front < back:
+                cnt += (back-front-1)
+                front += 1
             print(cnt)
 
 
